@@ -1,0 +1,20 @@
+# build.yml
+name: Build IPA
+on: push
+jobs:
+  build:
+    runs-on: macos-14
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build IPA
+        run: |
+          swiftc -parse StepGeneratorApp.swift
+          mkdir -p Payload/StepGenerator.app
+          xcodebuild -scheme StepGenerator -sdk iphoneos -configuration Release -derivedDataPath build
+          mkdir Payload
+          cp -r build/Build/Products/Release-iphoneos/StepGenerator.app Payload/
+          zip -r StepGenerator.ipa Payload
+      - uses: actions/upload-artifact@v4
+        with:
+          name: StepGenerator-IPA
+          path: StepGenerator.ipa
