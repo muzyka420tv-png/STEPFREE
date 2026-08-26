@@ -7,11 +7,13 @@ jobs:
     runs-on: macos-14
     steps:
       - uses: actions/checkout@v4
+      - name: Install XcodeGen
+        run: brew install xcodegen
+      - name: Generate Xcode project
+        run: xcodegen generate
       - name: Build IPA
         run: |
-          swiftc -parse StepGeneratorApp.swift
-          mkdir -p Payload/StepGenerator.app
-          xcodebuild -scheme StepGenerator -sdk iphoneos -configuration Release -derivedDataPath build
+          xcodebuild -project StepGenerator.xcodeproj -scheme StepGenerator -sdk iphoneos -configuration Release -derivedDataPath build CODE_SIGNING_ALLOWED=NO CODE_SIGNING_REQUIRED=NO CODE_SIGN_IDENTITY=""
           mkdir Payload
           cp -r build/Build/Products/Release-iphoneos/StepGenerator.app Payload/
           zip -r StepGenerator.ipa Payload
