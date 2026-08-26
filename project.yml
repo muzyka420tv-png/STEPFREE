@@ -11,8 +11,8 @@ targets:
       - StepGeneratorApp.swift
     info:
       path: Info.plist
-    entitlements:
-      path: StepGenerator.entitlements
+    frameworks:
+      - HealthKit
     settings:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: com.example.stepgenerator
