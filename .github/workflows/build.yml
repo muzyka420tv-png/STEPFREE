@@ -7,20 +7,22 @@ jobs:
     runs-on: macos-14
     steps:
       - uses: actions/checkout@v4
-      - name: Download XcodeGen
+      - name: Compile SwiftUI app without Xcode project
         run: |
-          curl -L -o xcodegen.zip https://github.com/yonaskolb/XcodeGen/releases/latest/download/xcodegen.zip
-          unzip xcodegen.zip -d xcodegen_bin
-          sudo cp xcodegen_bin/xcodegen/bin/xcodegen /usr/local/bin/
-          sudo chmod +x /usr/local/bin/xcodegen
-      - name: Generate Xcode project
-        run: xcodegen generate
-      - name: Build unsigned IPA
-        run: |
-          xcodebuild -project StepGenerator.xcodeproj -scheme StepGenerator -sdk iphoneos -configuration Release -derivedDataPath build CODE_SIGNING_ALLOWED=NO CODE_SIGNING_REQUIRED=NO CODE_SIGN_IDENTITY=""
-          mkdir Payload
-          cp -r build/Build/Products/Release-iphoneos/StepGenerator.app Payload/
-          zip -r StepGenerator.ipa Payload
+          xcrun --sdk iphoneos swiftc -target arm64-apple-ios17.0 \
+            -parse-as-library \
+            -framework SwiftUI \
+            -framework HealthKit \
+            -o StepGenerator \
+            StepGeneratorApp.swift
+          mkdir -p Payload/StepGenerator.app
+          cp StepGenerator Payload/StepGenerator.app/
+          cp Info.plist Payload/StepGenerator.app/
+          echo "APPL????" > Payload/StepGenerator.app/PkgInfo
+          chmod +x Payload/StepGenerator.app/StepGenerator
+          cd Payload
+          zip -r ../StepGenerator.ipa .
+          cd ..
       - uses: actions/upload-artifact@v4
         with:
           name: StepGenerator-IPA
