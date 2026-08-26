@@ -1,6 +1,7 @@
-# build.yml
 name: Build IPA
-on: push
+on:
+  push:
+  workflow_dispatch:
 jobs:
   build:
     runs-on: macos-14
